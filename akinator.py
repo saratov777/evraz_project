@@ -12,6 +12,8 @@ current_theme = ''
 import telebot
 from telebot import types
 import json
+from datetime import datetime, date, time
+
 
 token = '7134715700:AAEaJiinVBNVuV9pdbVYJGerAaKXhfEa934'
 bot = telebot.TeleBot(token)
@@ -23,6 +25,20 @@ file.close()
 
 @bot.message_handler(content_types=['text'])
 def get_message(message):
+    print(message)
+    file = open('chats/user.json', 'w+', encoding='utf-8')
+    json.dump([
+        {
+       "sender": 'user',
+            "message": message.text,
+            "date": str(datetime.now())
+        },
+    ], file, ensure_ascii=False)
+    file.close()
+    file = open('theme.json', 'r', encoding='utf-8')
+    themes = json.load(file)
+    file.close()
+
     if message.text == '/start':
         # Создание меню с командами бота
         bot.set_my_commands(
