@@ -29,7 +29,7 @@ def get_message(message):
     file = open('chats/user.json', 'w+', encoding='utf-8')
     json.dump([
         {
-       "sender": 'user',
+            "sender": 'user',
             "message": message.text,
             "date": str(datetime.now())
         },
@@ -53,6 +53,17 @@ def get_message(message):
             button = types.InlineKeyboardButton(text=theme, callback_data='theme_'+theme)
             keyboard.add(button)
         bot.send_message(message.from_user.id, text='Выберите тему для общения', reply_markup=keyboard)
+        file = open('chats/user.json', 'r', encoding='utf-8')
+        messages = json.load(file)
+        file.close()
+        messages.append({
+            "sender": 'bot',
+            "message": 'Выберите тему для общения',
+            "date": str(datetime.now())
+        })
+        file = open('chats/user.json', 'r+', encoding='utf-8')
+        json.dump(messages, file, ensure_ascii= False)
+        file.close()
 
 # Добавить обработчик нажатия на кнопки из бота
 @bot.callback_query_handler(func=lambda call: True)
@@ -73,6 +84,18 @@ def callback_worker(call):
             button11 = types.InlineKeyboardButton(text=answer, callback_data='answer_'+answer)
             keyboard1.add(button11)
         bot.send_message(call.message.chat.id, text=current_question, reply_markup=keyboard1)
+        file = open('chats/user.json', 'r', encoding='utf-8')
+        message = json.load(file)
+        file.close()
+        message.append({
+            "sender": 'bot',
+            "message": current_question,
+            "date": str(datetime.now())
+        })
+        file = open('chats/user.json', 'r+', encoding='utf-8')
+        json.dump(message, file, ensure_ascii= False)
+        file.close()
+
     elif call.data.startswith('answer'):
         file = open('theme.json', 'r', encoding='utf-8')
         themes = json.load(file)
@@ -81,12 +104,34 @@ def callback_worker(call):
         current_question = questions[current_question][answer]
         if current_question == '':
             bot.send_message(call.message.chat.id, text='Вы ответили на все вопросы')
+            file = open('chats/user.json', 'r', encoding='utf-8')
+            message = json.load(file)
+            file.close()
+            message.append({
+                "sender": 'bot',
+                "message": 'Вы ответили на все вопросы',
+                "date": str(datetime.now())
+            })
+            file = open('chats/user.json', 'r+', encoding='utf-8')
+            json.dump(message, file, ensure_ascii= False)
+            file.close()
         else:
             keyboard1 = types.InlineKeyboardMarkup()
             for answer in list(themes[current_theme]['questions'][current_question].keys()):
                 button11 = types.InlineKeyboardButton(text=answer, callback_data='answer_' + answer)
                 keyboard1.add(button11)
             bot.send_message(call.message.chat.id, text=current_question, reply_markup=keyboard1)
+            file = open('chats/user.json', 'r', encoding='utf-8')
+            message = json.load()
+            file.close()
+            message.append({
+                "sender": 'bot',
+                "message": current_question,
+                "date": str(datetime.now())
+            })
+            file = open('chats/user.json', 'r+', encoding='utf-8')
+            json.dump(message, file, ensure_ascii= False)
+            file.close()
 
 
 
