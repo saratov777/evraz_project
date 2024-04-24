@@ -26,6 +26,12 @@ file.close()
 @bot.message_handler(content_types=['text'])
 def get_message(message):
     print(message)
+    if message.text == '/start':
+        file = open(m, 'r', encoding='utf-8')
+        admins = json.load(file)
+        file.close()
+        if str(message.from_user.id) in admins.keys():
+            bot.send_message(message.from_user.id, text='У Вас есть доступ к Телеграм боту')
     file = open('chats/user.json', 'w+', encoding='utf-8')
     json.dump([
         {
@@ -101,6 +107,17 @@ def callback_worker(call):
         themes = json.load(file)
         file.close()
         answer = call.data.split('_')[1]
+        file = open('chats/user.json', 'r', encoding='utf-8')
+        message = json.load(file)
+        file.close()
+        message.append({
+            "sender": 'user',
+            "message": answer,
+            "date": str(datetime.now())
+        })
+        file = open('chats/user.json', 'r+', encoding='utf-8')
+        json.dump(message, file, ensure_ascii=False)
+        file.close()
         current_question = questions[current_question][answer]
         if current_question == '':
             bot.send_message(call.message.chat.id, text='Вы ответили на все вопросы')
@@ -122,7 +139,7 @@ def callback_worker(call):
                 keyboard1.add(button11)
             bot.send_message(call.message.chat.id, text=current_question, reply_markup=keyboard1)
             file = open('chats/user.json', 'r', encoding='utf-8')
-            message = json.load()
+            message = json.load(file)
             file.close()
             message.append({
                 "sender": 'bot',
