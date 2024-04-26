@@ -27,23 +27,15 @@ file.close()
 def get_message(message):
     print(message)
     if message.text == '/start':
-        file = open(m, 'r', encoding='utf-8')
-        admins = json.load(file)
+        file = open('chats/' + str(message.from_user.id) + '.json', 'w+', encoding='utf-8')
+        json.dump([
+            {
+                "sender": 'user',
+                "message": message.text,
+                "date": str(datetime.now())
+            },
+        ], file, ensure_ascii=False)
         file.close()
-        if str(message.from_user.id) in admins.keys():
-            bot.send_message(message.from_user.id, text='У Вас есть доступ к Телеграм боту')
-    file = open('chats/user.json', 'w+', encoding='utf-8')
-    json.dump([
-        {
-            "sender": 'user',
-            "message": message.text,
-            "date": str(datetime.now())
-        },
-    ], file, ensure_ascii=False)
-    file.close()
-    file = open('theme.json', 'r', encoding='utf-8')
-    themes = json.load(file)
-    file.close()
 
     if message.text == '/start':
         # Создание меню с командами бота
@@ -59,8 +51,12 @@ def get_message(message):
             button = types.InlineKeyboardButton(text=theme, callback_data='theme_'+theme)
             keyboard.add(button)
         bot.send_message(message.from_user.id, text='Выберите тему для общения', reply_markup=keyboard)
-        file = open('chats/user.json', 'r', encoding='utf-8')
-        messages = json.load(file)
+        file = open('chats/' + str(message.chat.id) + '.json', 'r', encoding='utf-8')
+        if file.read() == '':
+            messages = []
+        else:
+            file.seek(0)
+            messages = json.load(file)
         file.close()
         messages.append({
             "sender": 'bot',
@@ -90,16 +86,25 @@ def callback_worker(call):
             button11 = types.InlineKeyboardButton(text=answer, callback_data='answer_'+answer)
             keyboard1.add(button11)
         bot.send_message(call.message.chat.id, text=current_question, reply_markup=keyboard1)
-        file = open('chats/user.json', 'r', encoding='utf-8')
-        message = json.load(file)
+        file = open('chats/' + str(call.message.chat.id) + '.json', 'r', encoding='utf-8')
+        if file.read() == '':
+            messages = []
+        else:
+            file.seek(0)
+            messages = json.load(file)
         file.close()
-        message.append({
+        messages.append({
             "sender": 'bot',
             "message": current_question,
             "date": str(datetime.now())
         })
-        file = open('chats/user.json', 'r+', encoding='utf-8')
-        json.dump(message, file, ensure_ascii= False)
+        file = open('chats/' + str(call.message.chat.id) + '.json', 'r', encoding='utf-8')
+        if file.read() == '':
+            messages = []
+        else:
+            file.seek(0)
+            messages = json.load(file)
+        json.dump(messages, file, ensure_ascii= False)
         file.close()
 
     elif call.data.startswith('answer'):
@@ -107,30 +112,50 @@ def callback_worker(call):
         themes = json.load(file)
         file.close()
         answer = call.data.split('_')[1]
-        file = open('chats/user.json', 'r', encoding='utf-8')
-        message = json.load(file)
+        file = open('chats/' + str(call.message.chat.id) + '.json', 'r', encoding='utf-8')
+        if file.read() == '':
+            messages = []
+        else:
+            file.seek(0)
+            messages = json.load(file)
         file.close()
-        message.append({
+        messages.append({
             "sender": 'user',
             "message": answer,
             "date": str(datetime.now())
         })
-        file = open('chats/user.json', 'r+', encoding='utf-8')
-        json.dump(message, file, ensure_ascii=False)
+        file = open('chats/' + str(call.message.chat.id) + '.json', 'r', encoding='utf-8')
+        if file.read() == '':
+            messages = []
+        else:
+            file.seek(0)
+            messages = json.load(file)
+        json.dump(messages, file, ensure_ascii=False)
         file.close()
         current_question = questions[current_question][answer]
         if current_question == '':
             bot.send_message(call.message.chat.id, text='Вы ответили на все вопросы')
-            file = open('chats/user.json', 'r', encoding='utf-8')
-            message = json.load(file)
+            file = open('chats/' + str(call.message.chat.id) + '.json', 'r', encoding='utf-8')
+            if file.read() == '':
+                messages = []
+            else:
+                file.seek(0)
+                messages = json.load(file)
             file.close()
-            message.append({
+            messages.append({
                 "sender": 'bot',
                 "message": 'Вы ответили на все вопросы',
                 "date": str(datetime.now())
             })
-            file = open('chats/user.json', 'r+', encoding='utf-8')
-            json.dump(message, file, ensure_ascii= False)
+            file = open('chats/' + str(call.message.chat.id) + '.json', 'r', encoding='utf-8')
+            if file.read() == '':
+                messages = []
+            else:
+                file.seek(0)
+                messages = json.load(file)
+            file.close()
+            file = open('chats/' + str(call.message.chat.id) + '.json', 'r+ ', encoding='utf-8')
+            json.dump(messages, file, ensure_ascii= False)
             file.close()
         else:
             keyboard1 = types.InlineKeyboardMarkup()
@@ -138,16 +163,25 @@ def callback_worker(call):
                 button11 = types.InlineKeyboardButton(text=answer, callback_data='answer_' + answer)
                 keyboard1.add(button11)
             bot.send_message(call.message.chat.id, text=current_question, reply_markup=keyboard1)
-            file = open('chats/user.json', 'r', encoding='utf-8')
-            message = json.load(file)
+            file = open('chats/' + str(call.message.chat.id) + '.json', 'r', encoding='utf-8')
+            if file.read() == '':
+                messages = []
+            else:
+                file.seek(0)
+                messages = json.load(file)
             file.close()
-            message.append({
+            messages.append({
                 "sender": 'bot',
                 "message": current_question,
                 "date": str(datetime.now())
             })
-            file = open('chats/user.json', 'r+', encoding='utf-8')
-            json.dump(message, file, ensure_ascii= False)
+            file = open('chats/' + str(call.message.chat.id) + '.json', 'r', encoding='utf-8')
+            if file.read() == '':
+                messages = []
+            else:
+                file.seek(0)
+                messages = json.load(file)
+            json.dump(messages, file, ensure_ascii= False)
             file.close()
 
 
