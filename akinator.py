@@ -26,46 +26,53 @@ file.close()
 @bot.message_handler(content_types=['text'])
 def get_message(message):
     print(message)
-    if message.text == '/start':
-        file = open('chats/' + str(message.from_user.id) + '.json', 'w+', encoding='utf-8')
-        json.dump([
-            {
-                "sender": 'user',
-                "message": message.text,
-                "date": str(datetime.now())
-            },
-        ], file, ensure_ascii=False)
-        file.close()
+    file = open('block_users.json', 'r', encoding='utf-8')
+    block_users = json.load(file)
+    file.close()
+    if str(message.from_user.id) in block_users.keys():
+        bot.send_message(message.from_user.id, text='вали отсюд женек(какашк)')
+        exit()
+    else:
+        if message.text == '/start':
+            file = open('chats/' + str(message.from_user.id) + '.json', 'w+', encoding='utf-8')
+            json.dump([
+                {
+                    "sender": 'user',
+                    "message": message.text,
+                    "date": str(datetime.now())
+                },
+            ], file, ensure_ascii=False)
+            file.close()
 
-    if message.text == '/start':
-        # Создание меню с командами бота
-        bot.set_my_commands(
-            # Указываем список команд
-            commands=[
-                types.BotCommand('/start', 'Начать диалог с ботом'),
-                ],
-            scope = types.BotCommandScopeChat(message.chat.id)
-        ),
-        keyboard = types.InlineKeyboardMarkup()
-        for theme in list(themes.keys()):
-            button = types.InlineKeyboardButton(text=theme, callback_data='theme_'+theme)
-            keyboard.add(button)
-        bot.send_message(message.from_user.id, text='Выберите тему для общения', reply_markup=keyboard)
-        file = open('chats/' + str(message.chat.id) + '.json', 'r', encoding='utf-8')
-        if file.read() == '':
-            messages = []
-        else:
-            file.seek(0)
-            messages = json.load(file)
-        file.close()
-        messages.append({
-            "sender": 'bot',
-            "message": 'Выберите тему для общения',
-            "date": str(datetime.now())
-        })
-        file = open('chats/user.json', 'r+', encoding='utf-8')
-        json.dump(messages, file, ensure_ascii= False)
-        file.close()
+        if message.text == '/start':
+            # Создание меню с командами бота
+            bot.set_my_commands(
+                # Указываем список команд
+                commands=[
+                    types.BotCommand('/start', 'Начать диалог с ботом'),
+                    ],
+                scope = types.BotCommandScopeChat(message.chat.id)
+            ),
+            keyboard = types.InlineKeyboardMarkup()
+            for theme in list(themes.keys()):
+                button = types.InlineKeyboardButton(text=theme, callback_data='theme_'+theme)
+                keyboard.add(button)
+            bot.send_message(message.from_user.id, text='Выберите тему для общения', reply_markup=keyboard)
+            file = open('chats/' + str(message.chat.id) + '.json', 'r', encoding='utf-8')
+            if file.read() == '':
+                messages = []
+            else:
+                file.seek(0)
+                messages = json.load(file)
+            file.close()
+            messages.append({
+                "sender": 'bot',
+                "message": 'Выберите тему для общения',
+                "date": str(datetime.now())
+            })
+            file = open('chats/user.json', 'r+', encoding='utf-8')
+            json.dump(messages, file, ensure_ascii= False)
+            file.close()
 
 # Добавить обработчик нажатия на кнопки из бота
 @bot.callback_query_handler(func=lambda call: True)
