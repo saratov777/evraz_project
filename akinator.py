@@ -31,7 +31,6 @@ def get_message(message):
     file.close()
     if str(message.from_user.id) in block_users.keys():
         bot.send_message(message.from_user.id, text='вали отсюд женек(какашк)')
-        exit()
     else:
         if message.text == '/start':
             file = open('chats/' + str(message.from_user.id) + '.json', 'w+', encoding='utf-8')
@@ -70,7 +69,7 @@ def get_message(message):
                 "message": 'Выберите тему для общения',
                 "date": str(datetime.now())
             })
-            file = open('chats/user.json', 'r+', encoding='utf-8')
+            file = open('chats/' + str(message.from_user.id) + '.json', 'r+', encoding='utf-8')
             json.dump(messages, file, ensure_ascii= False)
             file.close()
 
@@ -111,6 +110,8 @@ def callback_worker(call):
         else:
             file.seek(0)
             messages = json.load(file)
+        file.close()
+        file = open('chats/' + str(call.message.chat.id) + '.json', 'w+', encoding='utf-8')
         json.dump(messages, file, ensure_ascii= False)
         file.close()
 
@@ -137,6 +138,8 @@ def callback_worker(call):
         else:
             file.seek(0)
             messages = json.load(file)
+        file.close()
+        file = open('chats/' + str(call.message.chat.id) + '.json', 'w+', encoding='utf-8')
         json.dump(messages, file, ensure_ascii=False)
         file.close()
         current_question = questions[current_question][answer]
@@ -188,7 +191,9 @@ def callback_worker(call):
             else:
                 file.seek(0)
                 messages = json.load(file)
-            json.dump(messages, file, ensure_ascii= False)
+            file.close()
+            file = open('chats/' + str(call.message.chat.id) + '.json', 'w+', encoding='utf-8')
+            json.dump(messages, file, ensure_ascii=False)
             file.close()
 
 
